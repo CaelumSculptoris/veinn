@@ -25,8 +25,6 @@ or thousands of elements) and transforms them through a sequence of
 - 🔄 **Invertible layers**: every round is invertible by design.
 - 🧮 **Algebraic S-boxes**: nonlinear layer using modular inverse in a finite field.
 - ⚡ **Fast mixing**: intra-block diffusion via NTT convolution.
-- 🧑‍💻 **Reference Python implementation** with clarity > performance.
-- 📊 **Built-in test harness**: avalanche testing, S-box analysis, NTT validation. (Coming soon) 
 
 ------------------------------------------------------------------------
 
@@ -183,6 +181,13 @@ python3 -m src.main
     structural attacks.
 -   Provided *solely* as a research artifact. Do not deploy in
     production.
+
+------------------------------------------------------------------------
+
+## TODO
+
+- E2E Tests
+- Documentation refactor
 
 ------------------------------------------------------------------------
 
