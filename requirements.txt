@@ -1,5 +1,7 @@
-cryptography>=38.0.0
-phe>=1.5.0
-numpy>=1.21.0
-kyber-py 
-pycryptodome
+cffi==2.0.0
+cryptography==46.0.2
+kyber-py==1.0.1
+numpy==2.3.3
+phe==1.5.0
+pycparser==2.23
+pycryptodome==3.23.0
