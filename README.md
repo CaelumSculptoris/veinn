@@ -189,6 +189,8 @@ python3 -m src.main
 - E2E Tests
 - Documentation refactor
 - Numpy array replacement 
+- C version
+- Self authored research paper
 
 ------------------------------------------------------------------------
 
