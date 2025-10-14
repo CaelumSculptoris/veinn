@@ -95,7 +95,7 @@ class VeinnParams:
     use_lwe: bool = True  # Enable LWE-based key derivation for post-quantum security
     valid: int = 3600  # Timestamp validity window in seconds
     seed_len: int = 64  # Seed length for cryptographic randomness
-    q: int = 2**31 -1 #2013265921 #1049089  # Prime modulus for field operations (≈2^20 for efficiency)
+    q: int = 2013265921 #1049089  # Prime modulus for field operations (≈2^20 for efficiency) or #2**31 -1
 
 # -----------------------------
 # Coupling Params 
