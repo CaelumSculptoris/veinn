@@ -707,7 +707,7 @@ def derive_layer_seed_from_masks_and_key(mask_a: np.ndarray, mask_b: np.ndarray,
     h.update(mask_b.tobytes())
     
     # Layer index provides domain separation between different layers
-    h.update(layer_idx)
+    h.update(layer_idx.to_bytes(4, 'big'))
     
     # Extract 32 bytes using SHAKE-256's variable output length
     return h.digest(32)
@@ -1250,8 +1250,8 @@ def permute_forward(x: np.ndarray, key: VeinnKey) -> np.ndarray:
     # Apply multiple cipher rounds
     for r in range(vp.rounds):
         # Coupling layers: invertible nonlinear mixing
-        for cp in key.rounds[r].cpls:
-            y = coupling_forward(y, cp, vp, idx)
+        for i, cp in enumerate(key.rounds[r].cpls):
+            y = coupling_forward(y, cp, vp, i)
 
         # Invertible element-wise scaling (adds algebraic complexity)
         y = (y.astype(np.int64) * key.rounds[r].ring_scale.astype(np.int64)) % vp.q
@@ -1306,8 +1306,9 @@ def permute_inverse(x: np.ndarray, key: VeinnKey) -> np.ndarray:
         y = (y.astype(np.int64) * key.rounds[r].ring_scale_inv.astype(np.int64)) % vp.q
         
         # Reverse coupling layers in reverse order
-        for cp in reversed(key.rounds[r].cpls):
-            y = coupling_inverse(y, cp, vp, idx)
+        for i in reversed(range(len(key.rounds[r].cpls))):
+            cp = key.rounds[r].cpls[i]
+            y = coupling_inverse(y, cp, vp, i)
     return y.astype(np.int64)
 
 # -----------------------------
