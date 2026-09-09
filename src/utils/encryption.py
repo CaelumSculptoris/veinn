@@ -89,26 +89,33 @@ def iterative_ntt(a: np.ndarray, root: int, q: int) -> np.ndarray:
         NTT transform of input polynomial
     """
     n = len(a)
-    a = a.copy()
-    t = n
-    m = 1
-    
-    # Cooley-Tukey NTT: log n stages, each combining smaller DFTs
-    while m < n:
-        t //= 2
-        for i in range(m):
-            j1 = 2 * i * t
-            j2 = j1 + t - 1
-            # Twiddle factor for this butterfly stage
-            S = pow(root, m + i, q)
-            for j in range(j1, j2 + 1):
-                # Butterfly operation: combine even/odd parts
-                U = a[j]
-                V = (a[j + t] * S) % q
-                a[j] = (U + V) % q
-                a[j + t] = (U - V) % q
-        m *= 2
-    return a
+    if n == 0 or n & (n - 1):
+        raise ValueError("NTT length must be a non-zero power of two")
+
+    values = np.array(a, dtype=np.int64, copy=True) % q
+
+    # Iterative Cooley-Tukey requires bit-reversed input ordering.
+    bit_count = n.bit_length() - 1
+    for index in range(n):
+        reversed_index = int(f"{index:0{bit_count}b}"[::-1], 2)
+        if index < reversed_index:
+            values[index], values[reversed_index] = values[reversed_index], values[index]
+
+    length = 2
+    while length <= n:
+        stage_root = pow(root, n // length, q)
+        half_length = length // 2
+        for start in range(0, n, length):
+            twiddle = 1
+            for index in range(start, start + half_length):
+                even = values[index]
+                odd = (values[index + half_length] * twiddle) % q
+                values[index] = (even + odd) % q
+                values[index + half_length] = (even - odd) % q
+                twiddle = (twiddle * stage_root) % q
+        length *= 2
+
+    return values
 
 def iterative_intt(A: np.ndarray, root: int, q: int) -> np.ndarray:
     """
@@ -126,13 +133,12 @@ def iterative_intt(A: np.ndarray, root: int, q: int) -> np.ndarray:
         Original polynomial coefficients
     """
     n = len(A)
-    # Inverse root of unity
-    root_inv = pow(root, q-2, q)
-    # Apply NTT with inverse root
-    a = iterative_ntt(A, root_inv, q)
-    # Scale by 1/n to complete inversion
-    inv_n = pow(n, q-2, q)
-    return (a * inv_n) % q
+    if n == 0:
+        raise ValueError("INTT length must be non-zero")
+    root_inv = pow(root, q - 2, q)
+    values = iterative_ntt(A, root_inv, q)
+    inv_n = pow(n, q - 2, q)
+    return (values * inv_n) % q
 
 def mod_mul(a: np.ndarray, b: np.ndarray, q: int) -> np.ndarray:
     """
