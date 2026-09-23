@@ -1,0 +1,1 @@
+{"veinn_metadata": {"n": 512, "rounds": 2, "layers_per_round": 2, "shuffle_stride": 3, "use_lwe": true, "chaining_mode": "cbc"}, "enc_seed_b64": "dWktdGVzdA==", "hmac": "e82ea268d95f403dbe10d2174ba176568c528b69e4038383205a4afbf00df2b1", "iv_b64": "g+kavT5CJV1lDUejGHzAZQ==", "timestamp": 1788984432.432394}
