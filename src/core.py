@@ -2,6 +2,7 @@ import json
 import math
 import hashlib
 import hmac
+import os
 import secrets
 import numpy as np
 import time
@@ -59,6 +60,7 @@ def veinn_from_seed(seed_input: str, vp: VeinnParams):
     seed = seed_input.encode('utf-8')
     k = key_from_seed(seed, vp)  # Custom key derivation function
     print(f"Derived VEINN key with params: n={vp.n}, rounds={vp.rounds}, layers_per_round={vp.layers_per_round}, shuffle_stride={vp.shuffle_stride}, use_lwe={vp.use_lwe}")    
+    return k
     
 def encrypt_with_pub(pubfile: str, file_type: str, message: Optional[str] = None, in_path: Optional[str] = None, vp: VeinnParams = VeinnParams(), seed_len: int = 32, nonce: Optional[bytes] = None, out_file: str = "enc_pub", mode: str = "cbc") -> str:
     """
@@ -255,10 +257,12 @@ def decrypt_with_priv(keystore: Optional[str], privfile: Optional[str], encfile:
     # Remove ISO 7816-4 padding to recover original message
     dec_bytes = unpad_iso7816(dec_bytes)
     
-    print("Decrypted message:", dec_bytes.decode('utf-8')) 
+    plaintext = dec_bytes.decode('utf-8')
+    print("Decrypted message:", plaintext)
 
     with open("decrypted.txt", "w") as f:
-            json.dump(dec_bytes.decode('utf-8'), f)  
+            json.dump(plaintext, f)
+    return {"text": plaintext, "file": "decrypted.txt"}
 
 def encrypt_with_public_veinn(seed_input: str, file_type: str, message: Optional[str] = None, in_path: Optional[str] = None, vp: VeinnParams = VeinnParams(), out_file: str = "enc_pub_veinn.json", bytes_per_number: Optional[int] = None, nonce: Optional[bytes] = None, mode: str = "cbc") -> str:
     """
@@ -406,7 +410,11 @@ def decrypt_with_public_veinn(seed_input: str, file_type: str, enc_file: str, va
     
     # Remove padding and display result
     dec_bytes = unpad_iso7816(dec_bytes)
-    print("Decrypted message:", dec_bytes.decode('utf-8')) 
+    plaintext = dec_bytes.decode('utf-8')
+    print("Decrypted message:", plaintext)
+    with open("decrypted.txt", "w") as f:
+        json.dump(plaintext, f)
+    return {"text": plaintext, "file": "decrypted.txt"}
 
 def write_ciphertext_with_iv(path: str, file_type: str, encrypted_blocks: list, metadata: dict, 
                             enc_seed_bytes: bytes, hmac_value: str, iv: bytes, timestamp: float):
@@ -421,7 +429,8 @@ def write_ciphertext_with_iv(path: str, file_type: str, encrypted_blocks: list, 
         "timestamp": timestamp
     }
     
-    with open("key_" + path, "w") as f:
+    key_path = os.path.join(os.path.dirname(path), "key_" + os.path.basename(path))
+    with open(key_path, "w") as f:
         json.dump(key, f)
 
     if file_type == "json":
@@ -442,7 +451,8 @@ def read_ciphertext_with_iv(path: str, file_type: str):
     """
     Enhanced deserialization that reads IV for chained modes.
     """
-    with open("key_" + path, "r") as f:
+    key_path = os.path.join(os.path.dirname(path), "key_" + os.path.basename(path))
+    with open(key_path, "r") as f:
         key = json.load(f)
         hmac_value = key["hmac"]
         iv = b64decode(key["iv_b64"])  # Read IV

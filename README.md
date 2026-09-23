@@ -172,6 +172,24 @@ source bin/activate
 pip install -r requirements.txt
 python3 -m src.main
 ```
+
+### Browser dashboard
+
+Build the React component and start the Python bridge with:
+
+```bash
+ npm install
+ npm run build
+python3 web.py
+```
+
+Then open <http://127.0.0.1:8765>. The dashboard forwards the configured
+vector parameters, seed/key paths, chaining mode, nonce, output format, and
+validity window to the Python encryption and decryption functions. It is a
+local research interface only; it does not make VEINN production-safe.
+
+For React development with hot reload, run the Python bridge in one terminal
+and `npm run dev` in another. Open <http://127.0.0.1:5173>.
 ------------------------------------------------------------------------
 
 ## Security Notes
