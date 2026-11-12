@@ -190,6 +190,29 @@ local research interface only; it does not make VEINN production-safe.
 
 For React development with hot reload, run the Python bridge in one terminal
 and `npm run dev` in another. Open <http://127.0.0.1:5173>.
+
+### Run with Docker
+
+Build the dashboard image and start it with Docker Compose:
+
+```bash
+docker compose up --build
+```
+
+Open <http://127.0.0.1:8765>. Generated keys, keystores, and encrypted files
+are stored in the `veinn-data` Docker volume and remain available after the
+container is recreated. Stop the service with `docker compose down`.
+
+If port 8765 is already in use, choose another local port, for example:
+
+```bash
+VEINN_PORT=18765 docker compose up --build
+```
+
+Then open <http://127.0.0.1:18765>.
+
+The dashboard is exposed on the local machine only and is intended for local
+research use; it does not provide authentication.
 ------------------------------------------------------------------------
 
 ## Security Notes

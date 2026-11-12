@@ -185,9 +185,13 @@ class DashboardHandler(BaseHTTPRequestHandler):
 
 
 def main() -> None:
-    os.chdir(ROOT)
-    server = ThreadingHTTPServer(("127.0.0.1", 8765), DashboardHandler)
-    print("VEINN dashboard: http://127.0.0.1:8765")
+    data_dir = Path(os.environ.get("VEINN_DATA_DIR", ROOT)).resolve()
+    data_dir.mkdir(parents=True, exist_ok=True)
+    os.chdir(data_dir)
+    host = os.environ.get("VEINN_HOST", "127.0.0.1")
+    port = int(os.environ.get("PORT", "8765"))
+    server = ThreadingHTTPServer((host, port), DashboardHandler)
+    print(f"VEINN dashboard: http://{host}:{port}")
     try:
         server.serve_forever()
     except KeyboardInterrupt:

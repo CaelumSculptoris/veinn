@@ -1,0 +1,11 @@
+services:
+  veinn:
+    build: .
+    ports:
+      - "127.0.0.1:${VEINN_PORT:-8765}:8765"
+    volumes:
+      - veinn-data:/data
+    restart: unless-stopped
+
+volumes:
+  veinn-data:
